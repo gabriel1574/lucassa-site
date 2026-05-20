@@ -104,61 +104,62 @@ export default function Home() {
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    /* Reveal on scroll + split por palavras */
+    /* Reveal on scroll + split por palavras (split lazy: so quando o
+       elemento entra no viewport, evita reflow pesado na montagem) */
     const revealEls = document.querySelectorAll('[data-reveal], [data-split]');
+
+    const walkAndSplit = (parent: Node) => {
+      Array.from(parent.childNodes).forEach((node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || '';
+          if (!text.trim()) return;
+          const frag = document.createDocumentFragment();
+          const tokens = text.split(/(\s+)/);
+          tokens.forEach((token) => {
+            if (token === '') return;
+            if (/^\s+$/.test(token)) {
+              frag.appendChild(document.createTextNode(token));
+            } else {
+              const wrap = document.createElement('span');
+              wrap.className = 'split-word-wrap';
+              const word = document.createElement('span');
+              word.className = 'split-word';
+              word.textContent = token;
+              wrap.appendChild(word);
+              frag.appendChild(wrap);
+            }
+          });
+          node.parentNode?.replaceChild(frag, node);
+        } else if (
+          node.nodeType === Node.ELEMENT_NODE &&
+          !(node as Element).classList.contains('split-word-wrap') &&
+          !(node as Element).classList.contains('split-word')
+        ) {
+          walkAndSplit(node);
+        }
+      });
+    };
+
     const revealObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            revealObs.unobserve(entry.target);
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          if (el.hasAttribute('data-split') && !el.dataset.splitDone) {
+            el.dataset.splitDone = 'true';
+            walkAndSplit(el);
+            el.querySelectorAll<HTMLElement>('.split-word').forEach((w, i) => {
+              w.style.transitionDelay = `${i * 70}ms`;
+            });
           }
+          el.classList.add('is-visible');
+          revealObs.unobserve(el);
         });
       },
       { threshold: 0.1, rootMargin: '0px 0px 0px 0px' }
     );
 
-    revealEls.forEach((el) => {
-      if (el.hasAttribute('data-split') && !(el as HTMLElement).dataset.splitDone) {
-        (el as HTMLElement).dataset.splitDone = 'true';
-        const walkAndSplit = (parent: Node) => {
-          Array.from(parent.childNodes).forEach((node) => {
-            if (node.nodeType === Node.TEXT_NODE) {
-              const text = node.textContent || '';
-              if (!text.trim()) return;
-              const frag = document.createDocumentFragment();
-              const tokens = text.split(/(\s+)/);
-              tokens.forEach((token) => {
-                if (token === '') return;
-                if (/^\s+$/.test(token)) {
-                  frag.appendChild(document.createTextNode(token));
-                } else {
-                  const wrap = document.createElement('span');
-                  wrap.className = 'split-word-wrap';
-                  const word = document.createElement('span');
-                  word.className = 'split-word';
-                  word.textContent = token;
-                  wrap.appendChild(word);
-                  frag.appendChild(wrap);
-                }
-              });
-              node.parentNode?.replaceChild(frag, node);
-            } else if (
-              node.nodeType === Node.ELEMENT_NODE &&
-              !(node as Element).classList.contains('split-word-wrap') &&
-              !(node as Element).classList.contains('split-word')
-            ) {
-              walkAndSplit(node);
-            }
-          });
-        };
-        walkAndSplit(el);
-        el.querySelectorAll<HTMLElement>('.split-word').forEach((w, i) => {
-          w.style.transitionDelay = `${i * 70}ms`;
-        });
-      }
-      revealObs.observe(el);
-    });
+    revealEls.forEach((el) => revealObs.observe(el));
 
     /* Safety fallback: forçar is-visible se observer não disparar em 2s */
     const fallbackTimer = setTimeout(() => {
@@ -235,12 +236,14 @@ export default function Home() {
       timeInterval = setInterval(updateTime, 30000);
     }
 
-    /* Partículas */
+    /* Partículas — deferred pra liberar o thread principal logo apos
+       o primeiro paint (rIC com fallback p/ setTimeout) */
     let rafParticles = 0;
     let onResize: (() => void) | null = null;
     let onParticleMove: ((e: MouseEvent) => void) | null = null;
     let onMouseLeave: (() => void) | null = null;
-    if (!reduce) {
+    let idleHandle: number | null = null;
+    const initParticlesDeferred = () => {
       const canvas = document.getElementById('particles') as HTMLCanvasElement | null;
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -358,6 +361,18 @@ export default function Home() {
           window.addEventListener('mouseleave', onMouseLeave);
         }
       }
+    };
+    if (!reduce) {
+      type WithRic = Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      const w = window as WithRic;
+      if (typeof w.requestIdleCallback === 'function') {
+        idleHandle = w.requestIdleCallback(initParticlesDeferred, { timeout: 1200 });
+      } else {
+        idleHandle = window.setTimeout(initParticlesDeferred, 200) as unknown as number;
+      }
     }
 
     /* Smooth scroll */
@@ -380,6 +395,11 @@ export default function Home() {
       cancelAnimationFrame(rafCursor);
       cancelAnimationFrame(rafParticles);
       clearTimeout(fallbackTimer);
+      if (idleHandle !== null) {
+        const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+        if (typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleHandle);
+        else clearTimeout(idleHandle);
+      }
       if (timeInterval) clearInterval(timeInterval);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('load', onLoad);
