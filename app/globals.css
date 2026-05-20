@@ -1332,7 +1332,26 @@ main { position: relative; z-index: 1; }
     }
 }
 @media (max-width: 480px) {
-    .footer-grid { grid-template-columns: 1fr; }
+    .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+    .footer-brand { grid-column: 1 / -1; }
+    .footer-col {
+        min-width: 0;
+        gap: 8px;
+    }
+    .footer-col a,
+    .footer-col span {
+        font-size: 12px;
+        word-break: break-word;
+        line-height: 1.5;
+    }
+    .footer-label {
+        font-size: 10px;
+        letter-spacing: .08em;
+        margin-bottom: 4px;
+    }
 }
 
 .footer-brand {
