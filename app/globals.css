@@ -117,18 +117,22 @@ strong { font-weight: 600; color: var(--text); }
 }
 .loader-content {
     display: flex; gap: 4px;
-    font-family: 'Space Grotesk';
+    font-family: 'Space Grotesk', system-ui, sans-serif;
     font-weight: 700;
     font-size: clamp(60px, 10vw, 120px);
     line-height: 1;
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 .loader-text {
     display: inline-block;
+    color: var(--text);
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     animation: loaderPop .8s var(--ease-out) both;
+}
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+    .loader-text { -webkit-text-fill-color: var(--text); color: var(--text); }
 }
 .loader-text:nth-child(2) { animation-delay: .15s; }
 
