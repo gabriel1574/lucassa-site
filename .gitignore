@@ -27,3 +27,6 @@ dist/
 
 # Env
 .env*.local
+
+# Claude Code (harness interno)
+.claude/
