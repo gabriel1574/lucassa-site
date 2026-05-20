@@ -855,6 +855,7 @@ main { position: relative; z-index: 1; }
 }
 @media (max-width: 900px) {
     .about-grid { grid-template-columns: 1fr; }
+    .about-card { position: static; top: auto; }
 }
 
 .about-text {
@@ -1047,6 +1048,7 @@ main { position: relative; z-index: 1; }
     white-space: nowrap;
     animation: marquee 16s linear infinite;
     font-size: clamp(28px, 4vw, 56px);
+    will-change: transform;
     font-weight: 500;
     letter-spacing: -.025em;
     line-height: 1.4;
@@ -1068,6 +1070,9 @@ main { position: relative; z-index: 1; }
 @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
+}
+@media (max-width: 700px) {
+    .marquee-track { animation-duration: 24s; gap: 24px; }
 }
 
 .companies-list {

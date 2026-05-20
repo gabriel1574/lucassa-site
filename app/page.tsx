@@ -114,11 +114,12 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+      { threshold: 0.1, rootMargin: '0px 0px 0px 0px' }
     );
 
     revealEls.forEach((el) => {
-      if (el.hasAttribute('data-split')) {
+      if (el.hasAttribute('data-split') && !(el as HTMLElement).dataset.splitDone) {
+        (el as HTMLElement).dataset.splitDone = 'true';
         const walkAndSplit = (parent: Node) => {
           Array.from(parent.childNodes).forEach((node) => {
             if (node.nodeType === Node.TEXT_NODE) {
@@ -141,7 +142,11 @@ export default function Home() {
                 }
               });
               node.parentNode?.replaceChild(frag, node);
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
+            } else if (
+              node.nodeType === Node.ELEMENT_NODE &&
+              !(node as Element).classList.contains('split-word-wrap') &&
+              !(node as Element).classList.contains('split-word')
+            ) {
               walkAndSplit(node);
             }
           });
@@ -153,6 +158,15 @@ export default function Home() {
       }
       revealObs.observe(el);
     });
+
+    /* Safety fallback: forçar is-visible se observer não disparar em 2s */
+    const fallbackTimer = setTimeout(() => {
+      revealEls.forEach((el) => {
+        if (!el.classList.contains('is-visible')) {
+          el.classList.add('is-visible');
+        }
+      });
+    }, 2000);
 
     /* Counter animado */
     const counters = document.querySelectorAll<HTMLElement>(
@@ -364,6 +378,7 @@ export default function Home() {
     return () => {
       cancelAnimationFrame(rafCursor);
       cancelAnimationFrame(rafParticles);
+      clearTimeout(fallbackTimer);
       if (timeInterval) clearInterval(timeInterval);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('load', onLoad);
