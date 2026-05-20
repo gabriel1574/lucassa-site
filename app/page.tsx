@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 
 export default function Home() {
   useEffect(() => {
@@ -538,7 +539,14 @@ export default function Home() {
             <div className="hero-photo">
               <div className="photo-frame">
                 <div className="photo-glow"></div>
-                <img src="/Imagens/me.avif" alt="Lucas Andrade" />
+                <Image
+                  src="/Imagens/me.avif"
+                  alt="Lucas Andrade"
+                  width={640}
+                  height={640}
+                  priority
+                  sizes="(max-width: 480px) 260px, (max-width: 960px) 320px, 452px"
+                />
                 <div className="photo-tags">
                   <span className="photo-tag">@lucassame</span>
                   <span className="photo-tag photo-tag-2">Founder · Builder</span>
