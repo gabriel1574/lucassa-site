@@ -1393,6 +1393,43 @@ main { position: relative; z-index: 1; }
     letter-spacing: .04em;
 }
 
+/* Mobile — centraliza todo o footer + colunas */
+@media (max-width: 700px) {
+    .footer-top {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .footer-grid {
+        gap: 36px;
+        text-align: center;
+        justify-items: center;
+    }
+    .footer-brand {
+        align-items: center;
+        max-width: 100%;
+        text-align: center;
+    }
+    .footer-col {
+        align-items: center;
+        text-align: center;
+    }
+    .footer-col a,
+    .footer-col span {
+        width: auto;
+    }
+    .footer-col a:hover {
+        transform: none;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+}
+
 /* ----------------------------------------------------------
    Reveal animations
    ---------------------------------------------------------- */
