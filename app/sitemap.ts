@@ -1,15 +1,17 @@
 import type { MetadataRoute } from 'next';
 
+const SITE_URL = 'https://lucassa-site.vercel.app';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://lucassa.me',
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,
       alternates: {
         languages: {
-          'pt-BR': 'https://lucassa.me',
+          'pt-BR': SITE_URL,
         },
       },
     },

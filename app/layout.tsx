@@ -16,7 +16,11 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-const SITE_URL = 'https://lucassa.me';
+/* SITE_URL: URL canonica de producao. Hoje aponta p/ o Vercel pq o
+   dominio lucassa.me ainda nao foi conectado ao projeto. Quando o DNS
+   estiver apontando p/ o Vercel, trocar de volta p/ 'https://lucassa.me'
+   pra Google e crawlers usarem o dominio limpo como canonical. */
+const SITE_URL = 'https://lucassa-site.vercel.app';
 const SITE_TITLE = 'Lucas Andrade — Desenvolvedor · SEO · Pentest';
 const SITE_DESCRIPTION =
   'Lucas Andrade — Desenvolvedor, especialista em SEO, criador de aplicações e pentester. Construo, posiciono e protejo produtos digitais.';
@@ -72,6 +76,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ['/Imagens/me.avif'],
     creator: '@lucassame',
+    site: '@lucassame',
   },
   category: 'technology',
 };
