@@ -13,9 +13,17 @@ desktop.ini
 *.log
 npm-debug.log*
 
-# Dependências (caso adicione no futuro)
+# Dependências
 node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
 
 # Build / temp
 dist/
 .cache/
+
+# Env
+.env*.local
