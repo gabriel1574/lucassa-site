@@ -921,7 +921,29 @@ main { position: relative; z-index: 1; }
     gap: 16px;
 }
 @media (max-width: 800px) {
-    .areas-grid { grid-template-columns: 1fr; }
+    .areas-grid {
+        display: flex;
+        grid-template-columns: none;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        gap: 14px;
+        padding: 8px 4px 20px;
+        margin-inline: calc(-1 * clamp(20px, 4vw, 56px));
+        padding-inline: clamp(20px, 4vw, 56px);
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        scroll-padding-inline: clamp(20px, 4vw, 56px);
+    }
+    .areas-grid::-webkit-scrollbar { display: none; }
+    .area-card {
+        flex: 0 0 88%;
+        max-width: 360px;
+        scroll-snap-align: center;
+        padding: 32px;
+    }
+    .area-card:first-child { scroll-snap-align: start; }
+    .area-card:last-child { scroll-snap-align: end; }
 }
 
 .area-card {
